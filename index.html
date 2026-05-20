@@ -82,7 +82,8 @@ canvas {
 <div id="game-container">
   <div id="header">
     <div class="left">
-      分数: <span id="score">0</span>
+      分数: <span id="score">0</span> &nbsp;
+      基地: <span id="baseHP">3❤</span>
     </div>
     <div class="right">
       生命: <span id="lives">3</span>
@@ -164,6 +165,7 @@ let particles = [];
 let powerUps = [];
 let score = 0;
 let lives = 3;
+let baseHP = 3;
 let level = 1;
 let enemiesRemaining = 20;
 let enemiesSpawned = 0;
@@ -497,11 +499,16 @@ class Bullet {
         spawnParticles(this.x, this.y, '#ffffff', 3);
         sfxHit();
       } else if (tile === BASE && !this.fromPlayer && !respawnPending) {
-        setTile(gx, gy, EMPTY);
         this.alive = false;
-        spawnParticles(gx * TILE + TILE/2, gy * TILE + TILE/2, '#ffdd00', 15);
-        sfxExplosion();
-        endGame(false);
+        baseHP--;
+        spawnParticles(this.x, this.y, '#ff4400', 8);
+        sfxHit();
+        if (baseHP <= 0) {
+          setTile(gx, gy, EMPTY);
+          spawnParticles(gx * TILE + TILE/2, gy * TILE + TILE/2, '#ffdd00', 15);
+          sfxExplosion();
+          endGame(false);
+        }
       }
     }
   }
@@ -622,6 +629,7 @@ function initLevel() {
   particles = [];
   powerUps = [];
   levelCleared = false;
+  baseHP = 3;
   enemySpawnTimer = 60;
   maxEnemiesOnScreen = Math.min(3 + level, 6);
 
@@ -693,6 +701,7 @@ function updateUI() {
   document.getElementById('lives').textContent = lives;
   document.getElementById('level').textContent = level;
   document.getElementById('remaining').textContent = enemiesRemaining - enemiesSpawned + enemies.filter(e => e.alive).length;
+  document.getElementById('baseHP').textContent = baseHP + '❤';
   if (playerInvincible > 0) {
     document.getElementById('lives').style.color = '#ffdd00';
   } else {
@@ -742,15 +751,16 @@ function drawMap() {
         ctx.arc(x + TILE/2, y + TILE/2, TILE/2 - 2, 0, Math.PI * 2);
         ctx.fill();
       } else if (tile === BASE) {
-        ctx.fillStyle = '#886600';
+        const hpColors = ['#ff2200', '#ff8800', '#ffdd00'];
+        const bgColor = baseHP > 0 ? hpColors[baseHP - 1] : '#444';
+        ctx.fillStyle = '#554400';
         ctx.fillRect(x, y, TILE, TILE);
-        ctx.fillStyle = '#ffdd00';
+        ctx.fillStyle = bgColor;
         ctx.fillRect(x + 2, y + 2, TILE - 4, TILE - 4);
-        // Eagle/flag symbol
         ctx.fillStyle = '#000';
-        ctx.font = '18px serif';
+        ctx.font = 'bold 16px serif';
         ctx.textAlign = 'center';
-        ctx.fillText('🦅', x + TILE/2, y + TILE/2 + 6);
+        ctx.fillText(baseHP > 0 ? '🏠' : '💥', x + TILE/2, y + TILE/2 + 6);
       }
     }
   }
