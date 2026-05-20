@@ -176,6 +176,7 @@ let keys = {};
 let shootCooldown = 0;
 let playerInvincible = 0;
 let respawnPending = false;
+let levelCleared = false;
 
 // Level maps
 const LEVELS = [
@@ -620,6 +621,7 @@ function initLevel() {
   bullets = [];
   particles = [];
   powerUps = [];
+  levelCleared = false;
   enemySpawnTimer = 60;
   maxEnemiesOnScreen = Math.min(3 + level, 6);
 
@@ -888,7 +890,7 @@ function update() {
     if (player && player.alive) {
       const dx = pu.x - player.getCenterX();
       const dy = pu.y - player.getCenterY();
-      if (Math.abs(dx) < 20 && Math.abs(dy) < 20) {
+      if (Math.abs(dx) < 30 && Math.abs(dy) < 30) {
         applyPowerUp(pu);
         pu.life = 0;
       }
@@ -901,10 +903,12 @@ function update() {
   particles = particles.filter(p => p.life > 0);
   powerUps = powerUps.filter(p => p.life > 0);
 
-  // Check win condition
-  if (enemiesSpawned >= enemiesRemaining && enemies.filter(e => e.alive).length === 0) {
+  // Check win condition — delay transition so player can grab power-ups from last kill
+  if (enemiesSpawned >= enemiesRemaining && enemies.filter(e => e.alive).length === 0 && !levelCleared) {
     score += 500;
-    nextLevel();
+    levelCleared = true;
+    updateUI();
+    setTimeout(() => { levelCleared = false; nextLevel(); }, 2000);
   }
 
   updateUI();
