@@ -363,7 +363,8 @@ class Tank {
       const gy = Math.floor(cy);
       if (gx < 0 || gx >= COLS || gy < 0 || gy >= ROWS) return false;
       const tile = getTile(gx, gy);
-      if (tile === BRICK || tile === STEEL || tile === WATER || tile === BASE) return false;
+      if (tile === BRICK || tile === STEEL || tile === WATER) return false;
+      if (tile === BASE && !this.isPlayer) return false;
     }
 
     // Check collision with other tanks
@@ -628,9 +629,9 @@ function initLevel() {
     }
   }
 
-  // Player spawn — place above base so tank doesn't overlap base tiles
-  const py = ROWS - 3;
-  // Clear player area (above and around base)
+  // Player spawn
+  const py = ROWS - 2;
+  // Clear player area
   for (let r = ROWS - 3; r < ROWS; r++) {
     for (let c = 8; c <= 11; c++) {
       if (getTile(c, r) !== BASE) setTile(c, r, EMPTY);
@@ -787,7 +788,7 @@ function checkBulletTankCollision() {
           } else {
             // Respawn
             setTimeout(() => {
-              player = new Tank(9.5, ROWS - 3, UP, '#44dd44', true);
+              player = new Tank(9.5, ROWS - 2, UP, '#44dd44', true);
               playerInvincible = 180;
             }, 1000);
           }
