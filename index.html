@@ -628,17 +628,15 @@ function initLevel() {
     }
   }
 
-  // Player spawn
-  const px = 9.5, py = ROWS - 2;
-  // Clear player area
-  for (let r = ROWS - 2; r < ROWS; r++) {
+  // Player spawn — place above base so tank doesn't overlap base tiles
+  const py = ROWS - 3;
+  // Clear player area (above and around base)
+  for (let r = ROWS - 3; r < ROWS; r++) {
     for (let c = 8; c <= 11; c++) {
       if (getTile(c, r) !== BASE) setTile(c, r, EMPTY);
     }
   }
-  player = new Tank(px, py, UP, '#44dd44', true);
-  player.x = 9.5;
-  player.y = ROWS - 2;
+  player = new Tank(9.5, py, UP, '#44dd44', true);
 
   // Clear enemy spawn areas
   const spawns = [
