@@ -175,6 +175,7 @@ let gamePaused = false;
 let keys = {};
 let shootCooldown = 0;
 let playerInvincible = 0;
+let respawnPending = false;
 
 // Level maps
 const LEVELS = [
@@ -494,7 +495,7 @@ class Bullet {
         this.alive = false;
         spawnParticles(this.x, this.y, '#ffffff', 3);
         sfxHit();
-      } else if (tile === BASE) {
+      } else if (tile === BASE && !this.fromPlayer && !respawnPending) {
         setTile(gx, gy, EMPTY);
         this.alive = false;
         spawnParticles(gx * TILE + TILE/2, gy * TILE + TILE/2, '#ffdd00', 15);
@@ -786,10 +787,12 @@ function checkBulletTankCollision() {
           if (lives <= 0) {
             endGame(false);
           } else {
-            // Respawn
+            // Respawn — base is invulnerable during the 1s delay
+            respawnPending = true;
             setTimeout(() => {
               player = new Tank(9.5, ROWS - 2, UP, '#44dd44', true);
               playerInvincible = 180;
+              respawnPending = false;
             }, 1000);
           }
         }
